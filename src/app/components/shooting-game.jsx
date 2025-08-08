@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useScores } from "../context/ScoreContext"; // Make sure this path matches your folder!
 
-/**
- * ShootingGame (JavaScript + JSX)
- * - Preserves original IDs so your logic can access elements.
- * - Implements your provided script logic inside useEffect with cleanup.
- * - Fixed width/height game area (400x600) to match your coordinate math.
- * - Bullets/enemies created with inline styles (no external CSS required).
- */
 export default function ShootingGame() {
   const gameAreaRef = useRef(null);
   const playerRef = useRef(null);
@@ -25,8 +19,11 @@ export default function ShootingGame() {
   const gundaSequenceRef = useRef(null);
   const gundaTextRef = useRef(null);
 
+  // ⬇️ Hook into the ScoreContext for global game score!
+  const { setGameScore } = useScores();
+
   useEffect(() => {
-    // Element bindings
+    // DOM elements
     const gameArea = gameAreaRef.current;
     const player = playerRef.current;
     const scoreDisplay = scoreDisplayRef.current;
@@ -42,7 +39,7 @@ export default function ShootingGame() {
     const gundaSequence = gundaSequenceRef.current;
     const gundaText = gundaTextRef.current;
 
-    // State
+    // Game State
     let bullets = [];
     let enemyBullets = [];
     let enemies = [];
@@ -52,7 +49,7 @@ export default function ShootingGame() {
     let enemiesKilled = 0;
     let gameEnded = false;
 
-    // Prepare player initial position
+    // Initial player position
     if (player) {
       player.style.left = playerX + "px";
       player.style.bottom = "20px";
@@ -97,9 +94,11 @@ export default function ShootingGame() {
         }
       }
       showNextLine();
+
+      // 🎯 Send game score to the global context!
+      setGameScore(score);
     }
 
-    // DOM helpers for entities
     function createBullet(xPx) {
       const bullet = document.createElement("div");
       bullet.classList.add("bullet");
@@ -119,7 +118,7 @@ export default function ShootingGame() {
       enemy.style.position = "absolute";
       enemy.style.width = "35px";
       enemy.style.height = "35px";
-      enemy.style.backgroundColor = "#ef4444"; // red-500
+      enemy.style.backgroundColor = "#ef4444";
       enemy.style.left = xPx + "px";
       enemy.style.top = "10px";
       gameArea.appendChild(enemy);
@@ -132,7 +131,7 @@ export default function ShootingGame() {
       bullet.style.position = "absolute";
       bullet.style.width = "6px";
       bullet.style.height = "12px";
-      bullet.style.backgroundColor = "#22d3ee"; // cyan-400
+      bullet.style.backgroundColor = "#22d3ee";
       bullet.style.left = xPx + "px";
       bullet.style.top = yPx + "px";
       gameArea.appendChild(bullet);
@@ -151,7 +150,6 @@ export default function ShootingGame() {
       );
     }
 
-    // Actions
     function shootBullet() {
       try {
         shootSound.currentTime = 0;
@@ -180,10 +178,10 @@ export default function ShootingGame() {
       });
     }
 
-    // Keyboard
     function keyHandler(e) {
       if (gameEnded) {
         if (e.key === "r" || e.key === "R") {
+          setGameScore(null); // (optional) reset score in context
           window.location.reload();
         }
         return;
@@ -202,7 +200,6 @@ export default function ShootingGame() {
 
     document.addEventListener("keydown", keyHandler);
 
-    // Game loop
     let gameLoopId = null;
     function gameLoop() {
       // player bullets move up
@@ -246,12 +243,7 @@ export default function ShootingGame() {
             } catch {}
             gameEnded = true;
             alert("💀 Game Over! Final Score: " + score);
-            // Optional: loserSong after deathSound ends (commented in your code)
-            // deathSound.onended = () => {
-            //   loserSong.currentTime = 0
-            //   loserSong.play()
-            // }
-            // You can reload immediately or wait for song end.
+            setGameScore(null); // Optionally clear score context on loss!
             window.location.reload();
             return;
           }
@@ -290,21 +282,19 @@ export default function ShootingGame() {
       gameLoopId = requestAnimationFrame(gameLoop);
     }
 
-    // Start game
+    // Start
     spawnEnemies();
     const enemyInterval = setInterval(enemyShoot, 1000);
     gameLoopId = requestAnimationFrame(gameLoop);
 
-    // Cleanup on unmount
+    // Cleanup
     return () => {
       document.removeEventListener("keydown", keyHandler);
       if (gameLoopId) cancelAnimationFrame(gameLoopId);
       clearInterval(enemyInterval);
-      // Remove spawned DOM nodes
       bullets.forEach((b) => b.remove());
       enemyBullets.forEach((b) => b.remove());
       enemies.forEach((e) => e.remove());
-      // Stop any playing audio
       [
         shootSound,
         hitSound,
@@ -322,7 +312,7 @@ export default function ShootingGame() {
       });
       if (gundaSequence) gundaSequence.style.display = "none";
     };
-  }, []);
+  }, [setGameScore]); // Depend on setGameScore in case context ever changes
 
   return (
     <div className="min-h-[100dvh] bg-black text-white">
@@ -353,7 +343,7 @@ export default function ShootingGame() {
           />
         </div>
 
-        {/* Game Area (400x600 to match logic) */}
+        {/* Game Area */}
         <div
           id="gameArea"
           ref={gameAreaRef}
@@ -362,7 +352,6 @@ export default function ShootingGame() {
           <div id="player" ref={playerRef} />
         </div>
       </div>
-
       {/* Sounds */}
       <audio
         id="shootSound"
@@ -379,7 +368,6 @@ export default function ShootingGame() {
         src="/sounds/loser.mp3"
         preload="auto"
       />
-
       {/* Gunda Sequence Overlay */}
       <div
         id="gundaSequence"
@@ -393,7 +381,6 @@ export default function ShootingGame() {
           className="mx-auto mt-[30vh] max-w-3xl px-4 text-center text-3xl opacity-0 transition-opacity duration-1000 ease-in-out"
         />
       </div>
-
       {/* Gunda Victory Song */}
       <audio
         id="gundaSong"

@@ -1,7 +1,8 @@
 // components/GoonOrOrphanQuiz.js
 "use client";
-
 import React, { useState } from "react";
+import { useScores } from "../context/ScoreContext";
+import Link from "next/link";
 
 // --- Quiz Data ---
 // Using more cinematic and less offensive terms.
@@ -120,7 +121,6 @@ const quizQuestions = [
 ];
 
 export default function GoonOrOrphanQuiz() {
-  // State management for the quiz
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [heroScore, setHeroScore] = useState(0);
   const [wandererScore, setWandererScore] = useState(0);
@@ -128,17 +128,13 @@ export default function GoonOrOrphanQuiz() {
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
-  // **FIX APPLIED HERE**
-  // The logic to advance the question is now self-contained in the click handler.
-  // This is a more direct and robust approach than using a separate useEffect hook for the timer.
-  const handleAnswerClick = (answer, index) => {
-    if (isAnswered) return; // Prevent multiple answers for the same question
+  const { setQuizScore } = useScores();
 
-    // Set visual state immediately
+  const handleAnswerClick = (answer, index) => {
+    if (isAnswered) return;
     setSelectedAnswerIndex(index);
     setIsAnswered(true);
 
-    // Calculate the score
     const currentQuestion = quizQuestions[currentQuestionIndex];
     if (currentQuestion.type === "personality") {
       if (answer.scoreType === "hero") setHeroScore((s) => s + 1);
@@ -148,29 +144,41 @@ export default function GoonOrOrphanQuiz() {
       if (answer.scoreType === "wanderer") setWandererScore((s) => s + 1);
     }
 
-    // Set a timer to move to the next question or show the result
     setTimeout(() => {
       const nextQuestionIndex = currentQuestionIndex + 1;
+
+      // Calculate what the new hero/wanderer score would be after this answer
+      let nextHeroScore = heroScore;
+      let nextWandererScore = wandererScore;
+      if (currentQuestion.type === "personality") {
+        if (answer.scoreType === "hero") nextHeroScore += 1;
+        if (answer.scoreType === "wanderer") nextWandererScore += 1;
+      } else if (currentQuestion.type === "knowledge" && answer.isCorrect) {
+        if (answer.scoreType === "hero") nextHeroScore += 1;
+        if (answer.scoreType === "wanderer") nextWandererScore += 1;
+      }
+
       if (nextQuestionIndex < quizQuestions.length) {
         setCurrentQuestionIndex(nextQuestionIndex);
-        // Reset state for the next question
         setSelectedAnswerIndex(null);
         setIsAnswered(false);
+        // State updates for scores already happened above
       } else {
         setShowResult(true);
+        setQuizScore(nextHeroScore); // update global context with FINAL hero score!
       }
     }, 1500);
   };
 
-  // Function to reset the quiz
-  const handleReset = () => {
-    setCurrentQuestionIndex(0);
-    setHeroScore(0);
-    setWandererScore(0);
-    setShowResult(false);
-    setIsAnswered(false);
-    setSelectedAnswerIndex(null);
-  };
+  // const handleReset = () => {
+  //   setCurrentQuestionIndex(0);
+  //   setHeroScore(0);
+  //   setWandererScore(0);
+  //   setShowResult(false);
+  //   setIsAnswered(false);
+  //   setSelectedAnswerIndex(null);
+  //   setQuizScore(null); // Reset ScoreContext for quiz when restart
+  // };
 
   // Dynamically determine the result
   const getResult = () => {
@@ -227,12 +235,12 @@ export default function GoonOrOrphanQuiz() {
               {getResult().title}
             </h2>
             <p className="text-gray-400 mb-8">{getResult().description}</p>
-            <button
-              onClick={handleReset}
+            <Link
+              href="/game"
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
-              Try Again
-            </button>
+              Next
+            </Link>
           </div>
         ) : (
           // --- Quiz View ---
