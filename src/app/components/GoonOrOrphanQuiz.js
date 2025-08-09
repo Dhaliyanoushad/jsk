@@ -236,7 +236,7 @@ export default function GoonOrOrphanQuiz() {
             </h2>
             <p className="text-gray-400 mb-8">{getResult().description}</p>
             <Link
-              href="/game"
+              href="/classifier"
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
               Next

@@ -2,26 +2,34 @@ import React, { useEffect, useState } from "react";
 
 const Preloader = ({ fadeOut }) => {
   const [showFirstImage, setShowFirstImage] = useState(true);
+  const [showText, setShowText] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setShowFirstImage((prev) => !prev);
-    }, 2500); // swap every 2.5s for smoother feel
-    return () => clearInterval(interval);
+    }, 2500);
+
+    // Show text after 0.8s for drama (or choose your own delay)
+    const textTimeout = setTimeout(() => setShowText(true), 800);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(textTimeout);
+    };
   }, []);
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black transition-opacity duration-700 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-black transition-opacity duration-700 ${
         fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
       <div className="relative flex items-center justify-center">
         {/* Glowing background */}
-        <div className="absolute w-[220px] h-[220px] rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500 blur-2xl opacity-40 animate-pulse"></div>
+        <div className="absolute w-[260px] h-[260px] rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500 blur-2xl opacity-40 animate-pulse"></div>
 
         {/* Rotating image with smooth fade */}
-        <div className="relative w-[180px] h-[180px] rounded-full overflow-hidden shadow-2xl border border-white/20">
+        <div className="relative w-[220px] h-[220px] rounded-full overflow-hidden shadow-2xl border border-white/20">
           <img
             src="/images/gundey.png"
             alt="Preloader 1"
@@ -41,6 +49,21 @@ const Preloader = ({ fadeOut }) => {
         </div>
       </div>
 
+      {/* Dramatic Malayalam text */}
+      <div
+        className={`mt-10 text-3xl md:text-4xl font-extrabold tracking-wide text-center text-white drop-shadow-xl 
+        transition-opacity duration-1000 ${
+          showText ? "opacity-100" : "opacity-0"
+        }`}
+        style={{
+          textShadow: "0 4px 32px #ee00ff, 0 2px 16px #08e4ff",
+        }}
+      >
+        നിങ്ങൾ അനാഥരോ
+        <br />
+        ഗുണ്ടകളോ?
+      </div>
+
       <style jsx>{`
         @keyframes clockwise {
           0% {
@@ -50,7 +73,6 @@ const Preloader = ({ fadeOut }) => {
             transform: rotate(360deg);
           }
         }
-
         @keyframes anticlockwise {
           0% {
             transform: rotate(0deg);
@@ -59,17 +81,14 @@ const Preloader = ({ fadeOut }) => {
             transform: rotate(-360deg);
           }
         }
-
         .rotateClockwise {
           animation: clockwise 5s linear infinite;
         }
-
         .rotateAnticlockwise {
           animation: anticlockwise 5s linear infinite;
         }
-
         .secondImageOffset {
-          object-position: center 55%; /* lower second image without cropping */
+          object-position: center 55%;
         }
       `}</style>
     </div>

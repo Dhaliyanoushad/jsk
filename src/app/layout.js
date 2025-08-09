@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
         className={`bg-white ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ScoreProvider>
-          <ScoreBar />
+          {/* <ScoreBar /> */}
           {children}
         </ScoreProvider>
       </body>

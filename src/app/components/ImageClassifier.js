@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import * as tf from "@tensorflow/tfjs";
-import { useScores } from "../context/ScoreContext"; // Adjust if your contexts folder path differs
+import { useScores } from "../context/ScoreContext";
+import Link from "next/link";
 
 export default function ImageClassifier() {
   const [model, setModel] = useState(null);
@@ -10,9 +11,9 @@ export default function ImageClassifier() {
   const [imageURL, setImageURL] = useState(null);
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showNext, setShowNext] = useState(false);
   const imageRef = useRef(null);
 
-  // Use your global score setter for image classification score
   const { setImageScore } = useScores();
 
   useEffect(() => {
@@ -21,10 +22,9 @@ export default function ImageClassifier() {
         const modelUrl = "/models/model.json";
         const loadedModel = await tf.loadLayersModel(modelUrl);
         setModel(loadedModel);
-        const names = ["gunda", "orphan"]; // Make sure this matches your model classes exactly
+        const names = ["gunda", "orphan"];
         setClassNames(names);
         setLoading(false);
-        console.log("Model loaded successfully");
       } catch (error) {
         console.error("Error loading model: ", error);
         setLoading(false);
@@ -36,25 +36,14 @@ export default function ImageClassifier() {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setImageURL(url);
+      setImageURL(URL.createObjectURL(file));
       setPrediction(null);
+      setShowNext(false);
     }
   };
 
   const handlePredict = async () => {
-    console.log("1. handlePredict function called.");
-
-    if (!model) {
-      console.error("Model not loaded yet.");
-      return;
-    }
-    if (!imageRef.current) {
-      console.error("Image reference is not available.");
-      return;
-    }
-    console.log("2. Model and image ref are ready.");
-
+    if (!model || !imageRef.current) return;
     try {
       const tensor = tf.browser
         .fromPixels(imageRef.current)
@@ -62,42 +51,28 @@ export default function ImageClassifier() {
         .toFloat()
         .expandDims(0);
 
-      console.log("3. Image successfully converted to tensor.");
-
       const predictions = await model.predict(tensor);
       const predictionsData = await predictions.data();
 
-      console.log("4. Prediction complete.", predictionsData);
-
       const highestIndex = predictions.as1D().argMax().dataSync()[0];
       const predictedClass = classNames[highestIndex];
-      const confidence = predictionsData[highestIndex]; // Between 0 and 1
-
+      const confidence = predictionsData[highestIndex];
       const confidencePercent = (confidence * 100).toFixed(1);
       setPrediction(`Predicted: ${predictedClass} (${confidencePercent}%)`);
 
-      // --- Normalize score ---
-      // Example logic:
-      // Assign a positive score if class predicted as 'gunda' (goon), else negative
-      // Score range: -100 (orphan) to +100 (gunda)
+      // Normalize score and update global score context
       let normalizedScore = 0;
       if (predictedClass === "gunda") {
-        normalizedScore = confidence * 200 - 100; // confidence 0=>-100, 1=>+100
+        normalizedScore = confidence * 200 - 100;
       } else if (predictedClass === "orphan") {
-        // Assuming orphan is the other class
-        normalizedScore = (1 - confidence) * 200 - 100; // inverse confidence
-      } else {
-        // fallback neutral
-        normalizedScore = 0;
+        normalizedScore = (1 - confidence) * 200 - 100;
       }
-
-      // Set the normalized score in the global context
       setImageScore(normalizedScore);
+
+      setShowNext(true);
 
       tensor.dispose();
       predictions.dispose();
-
-      console.log("5. Prediction displayed and tensors disposed.");
     } catch (error) {
       console.error("--- ERROR DURING PREDICTION ---", error);
       setPrediction("Failed to predict. Check console for errors.");
@@ -120,14 +95,14 @@ export default function ImageClassifier() {
             accept="image/*"
             onChange={handleImageUpload}
             className="
-          block w-full text-gray-200
-          bg-transparent border-b border-gray-600
-          py-2 px-1 mb-6
-          cursor-pointer
-          file:bg-gray-700 file:text-gray-300 file:py-1 file:px-3 file:border-0
-          file:rounded-sm file:mr-4
-          hover:file:bg-gray-600
-          focus:outline-none focus:border-blue-500"
+              block w-full text-gray-200
+              bg-transparent border-b border-gray-600
+              py-2 px-1 mb-6
+              cursor-pointer
+              file:bg-gray-700 file:text-gray-300 file:py-1 file:px-3 file:border-0
+              file:rounded-sm file:mr-4
+              hover:file:bg-gray-600
+              focus:outline-none focus:border-blue-500"
           />
           {prediction && (
             <h3 className="mb-4 text-xl font-bold tracking-wide select-text break-words text-amber-200">
@@ -152,13 +127,21 @@ export default function ImageClassifier() {
               onClick={handlePredict}
               disabled={!imageURL || !model || loading}
               className="
-            w-full bg-blue-600 text-white font-semibold text-lg py-4 rounded-lg
-            hover:bg-blue-700 transition-colors duration-300
-            disabled:opacity-50 disabled:cursor-not-allowed
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                w-full bg-blue-600 text-white font-semibold text-lg py-4 rounded-lg
+                hover:bg-blue-700 transition-colors duration-300
+                disabled:opacity-50 disabled:cursor-not-allowed
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
             >
               {loading ? "Loading..." : "Predict"}
             </button>
+            {showNext && (
+              <Link
+                href="/game" // CHANGE this to your target page!
+                className="mt-4 inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold text-lg py-4 rounded-lg transition-colors duration-300"
+              >
+                Next
+              </Link>
+            )}
           </div>
         </>
       )}
