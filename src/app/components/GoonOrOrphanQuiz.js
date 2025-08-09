@@ -184,22 +184,22 @@ export default function GoonOrOrphanQuiz() {
   const getResult = () => {
     if (heroScore > wandererScore) {
       return {
-        title: "You're a Mass Hero!",
-        emoji: "😎",
+        title: "Nee Anaathan ella GUNDA AAN EDA!!! GUNDA!",
+        emoji: "images/abu.jpeg",
         description:
           "You've got charisma and command respect. You solve problems with style and your friends know you're the one to call.",
       };
     }
     if (wandererScore > heroScore) {
       return {
-        title: "You're a Lone Wanderer!",
-        emoji: "❤️‍🩹",
+        title: "Nee Ottayavan aaddahh!",
+        emoji: "images/ottayavan.jpeg",
         description:
           "You've got a heart of gold and a powerful backstory. Your journey is about finding your place in the world, and you win people over with your kindness.",
       };
     }
     return {
-      title: "You're The Unlikely Hero!",
+      title: "Njangal Anatharanu..!Neeyum!!",
       emoji: "🥺",
       description:
         "You have the heart of a wanderer but the attitude of a mass hero. You're a complex character, probably the star of a blockbuster movie.",
@@ -230,7 +230,7 @@ export default function GoonOrOrphanQuiz() {
         {showResult ? (
           // --- Result View ---
           <div className="text-center">
-            <div className="text-7xl mb-4">{getResult().emoji}</div>
+            <div className="text-7xl mb-4"><img src={getResult().emoji}></img></div>
             <h2 className="text-3xl font-bold text-yellow-400 mb-2">
               {getResult().title}
             </h2>
