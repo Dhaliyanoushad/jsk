@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Preloader from "./components/Preloader";
-import Test from "./components/Test"; // Assuming Test is your main content component
+import Test from "./components/Landing"; // Assuming Test is your main content component
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
