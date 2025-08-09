@@ -8,29 +8,32 @@ export default function Home() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // Show preloader for 5–10 seconds (use e.g. 7000ms here)
     const timer = setTimeout(() => {
-      setFadeOut(true); // Start fade out
-      // Wait for fade-out animation, then hide preloader
-      setTimeout(() => setLoading(false), 700); // 700ms matches fade duration
-    }, 3000);
+      setFadeOut(true);
+      setTimeout(() => setLoading(false), 700);
+    }, 2500); // Shorter, snappier load
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="min-h-screen w-full relative bg-white flex items-center justify-center">
+    <div className="min-h-screen w-full relative bg-black text-white-900">
       {/* Preloader */}
       {loading && <Preloader fadeOut={fadeOut} />}
-      {/* Main Home Content */}
+
+      {/* Main Content */}
       <main
-        className={`flex flex-col items-center justify-center w-full min-h-screen transition-opacity duration-700 ${
+        className={`flex flex-col items-center justify-center min-h-screen px-4 transition-opacity duration-700 ${
           loading ? "opacity-0" : "opacity-100"
         }`}
       >
-        <h1 className="text-black text-5xl md:text-8xl font-black tracking-tight text-center">
-          Are you a goon or a aadu???
+        <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight text-center leading-tight">
+          Are you a <span className="text-indigo-500">goon</span> or an{" "}
+          <span className="text-pink-500">aadu</span>?
         </h1>
+        <p className="mt-4 text-lg text-white-500 text-center max-w-md">
+          Discover the truth — one click at a time.
+        </p>
       </main>
     </div>
   );
