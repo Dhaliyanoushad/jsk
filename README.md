@@ -14,7 +14,7 @@
 
 ### Hosted Project Link
 
-[അനാഥനാണോ ഗുണ്ടയാണോ](https://jsk-1x8j.onrender.com/)
+[അനാഥനാണോ ഗുണ്ടയാണോ]([https://jsk-1x8j.onrender.com/](https://jsk-1x8j.onrender.com/))
 
 ### Project Description
 [A completely useless Malayalam meme–inspired web app that uncovers your true identity through a totally scientific 3-level process: a quiz, a chaotic mini-game, and an actual trained image classification model to decide if you’re a gunda or an orphan.]
