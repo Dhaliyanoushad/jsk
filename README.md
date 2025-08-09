@@ -1,11 +1,11 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# [Project Name] 🎯
+# [അനാഥനാണോ ഗുണ്ടയാണോ ] 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: [McAfee]
 
 
 ### Team Members
@@ -13,20 +13,21 @@
 * Member 2: [Fathima Rasha Abdul Rahim] - [SOE,CUSAT]
 
 ### Project Description
-[2-3 lines about what your project does]
+[A completely useless Malayalam meme–inspired web app that uncovers your true identity through a totally scientific 3-level process: a quiz, a chaotic mini-game, and an actual trained image classification model to decide if you’re a gunda or an orphan.]
 
 ### The Problem (that doesn't exist)
 [കേരളത്തിന്റെ മക്കൾ അനാഥരോ ഗുണ്ടകളോ ?]
+
 ### The Solution (that nobody asked for)
-[]
+[അനാഥനാണോ ഗുണ്ടയാണോ എന്നുള്ള തിരിച്ചറിവ് ]
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-* [Languages used]
-* [Frameworks used]
-* [Libraries used]
-* [Tools used]
+* [Python,JavaScript]
+* [Next.js]
+* [TensorFlow,NumPy,Tailwind,React]
+* [VS Code,Google Colab,Jupyter Notebook,Render]
 
 For Hardware:
 * [No hardware components are required]
@@ -35,60 +36,34 @@ For Hardware:
 ### Implementation
 For Software:
 # Installation
-[commands]
+[git clone https://github.com/Dhaliyanoushad/jsk.git]
+[npm i]
 
 # Run
-[commands]
+[npm run dev]
 
 ### Project Documentation
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1:Loader](images/loader.jpeg)
+![Screenshot1:Loader](public/images/loader.jpeg)
 *The above image shows the preloader of our webapp*
 
-![Screenshot2:quiz](images/quiz.jpeg)
-*Add caption explaining what this shows*
+![Screenshot2:quiz](public/images/quiz.jpeg)
+*The image shows our quiz where based on the answers the user gave, the gunda or orphan scale updates  *
 
-![Screenshot3:Trained Model](images/sura.jpeg)
-*Add caption explaining what this shows*
-
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
+![Screenshot3:Trained Model](public/images/sura.jpeg)
+*Here the user photo is uploaded and the trained model detects if the user is a gunda or an orphan*
 
 ### Project Demo
 # Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
+[[Add your demo video link here](https://drive.google.com/file/d/1ABaajBQ3SXHwLFuhxwkPuiS9zdx9JI9G/view?usp=sharing)]
+*This video demonstrates the key features and functionalities of the project, including brief description of what the video showcases.*
 
-# Additional Demos
-[Add any extra demo materials/links]
 
 ## Team Contributions
-* [Name 1]: [Specific contributions]
-* [Name 2]: [Specific contributions]
-* [Name 3]: [Specific contributions]
-
+* [Fathimath Dhaliya Noushad V P]: [Trained Model in Tensorflow.js to classify images, created quiz]
+* [Fathimna Rasha]: [Created the game , Loader page]
 ---
 Made with ❤️ at TinkerHub Useless Projects 
 
