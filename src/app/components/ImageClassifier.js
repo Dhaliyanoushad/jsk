@@ -1,8 +1,8 @@
-// src/app/components/ImageClassifier.js
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import * as tf from "@tensorflow/tfjs";
+import { useScores } from "../context/ScoreContext"; // Adjust if your contexts folder path differs
 
 export default function ImageClassifier() {
   const [model, setModel] = useState(null);
@@ -12,13 +12,16 @@ export default function ImageClassifier() {
   const [loading, setLoading] = useState(true);
   const imageRef = useRef(null);
 
+  // Use your global score setter for image classification score
+  const { setImageScore } = useScores();
+
   useEffect(() => {
     async function loadModel() {
       try {
         const modelUrl = "/models/model.json";
         const loadedModel = await tf.loadLayersModel(modelUrl);
         setModel(loadedModel);
-        const names = ["gunda", "orphan"]; // ✅ REMEMBER TO USE YOUR CLASS NAMES
+        const names = ["gunda", "orphan"]; // Make sure this matches your model classes exactly
         setClassNames(names);
         setLoading(false);
         console.log("Model loaded successfully");
@@ -40,7 +43,6 @@ export default function ImageClassifier() {
   };
 
   const handlePredict = async () => {
-    // --- Start of Debug Section ---
     console.log("1. handlePredict function called.");
 
     if (!model) {
@@ -52,7 +54,6 @@ export default function ImageClassifier() {
       return;
     }
     console.log("2. Model and image ref are ready.");
-    // --- End of Debug Section ---
 
     try {
       const tensor = tf.browser
@@ -70,12 +71,32 @@ export default function ImageClassifier() {
 
       const highestIndex = predictions.as1D().argMax().dataSync()[0];
       const predictedClass = classNames[highestIndex];
-      const confidence = (predictionsData[highestIndex] * 100).toFixed(1);
+      const confidence = predictionsData[highestIndex]; // Between 0 and 1
 
-      setPrediction(`Predicted: ${predictedClass} (${confidence}%)`);
+      const confidencePercent = (confidence * 100).toFixed(1);
+      setPrediction(`Predicted: ${predictedClass} (${confidencePercent}%)`);
+
+      // --- Normalize score ---
+      // Example logic:
+      // Assign a positive score if class predicted as 'gunda' (goon), else negative
+      // Score range: -100 (orphan) to +100 (gunda)
+      let normalizedScore = 0;
+      if (predictedClass === "gunda") {
+        normalizedScore = confidence * 200 - 100; // confidence 0=>-100, 1=>+100
+      } else if (predictedClass === "orphan") {
+        // Assuming orphan is the other class
+        normalizedScore = (1 - confidence) * 200 - 100; // inverse confidence
+      } else {
+        // fallback neutral
+        normalizedScore = 0;
+      }
+
+      // Set the normalized score in the global context
+      setImageScore(normalizedScore);
 
       tensor.dispose();
       predictions.dispose();
+
       console.log("5. Prediction displayed and tensors disposed.");
     } catch (error) {
       console.error("--- ERROR DURING PREDICTION ---", error);
@@ -84,48 +105,61 @@ export default function ImageClassifier() {
   };
 
   return (
-    <div
-      style={{
-        fontFamily: "sans-serif",
-        textAlign: "center",
-        marginTop: "40px",
-      }}
-    >
-      <h2>Image Classifier</h2>
+    <div className="flex flex-col min-h-screen max-w-md mx-auto px-4 py-8 text-center font-sans text-gray-100 bg-transparent">
+      <h2 className="text-4xl font-extrabold mb-8 select-none">
+        Image Classifier
+      </h2>
       {loading ? (
-        <p>Loading model, please wait...</p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-gray-400 italic">Loading model, please wait...</p>
+        </div>
       ) : (
         <>
           <input
             type="file"
             accept="image/*"
             onChange={handleImageUpload}
-            style={{ marginBottom: "20px" }}
+            className="
+          block w-full text-gray-200
+          bg-transparent border-b border-gray-600
+          py-2 px-1 mb-6
+          cursor-pointer
+          file:bg-gray-700 file:text-gray-300 file:py-1 file:px-3 file:border-0
+          file:rounded-sm file:mr-4
+          hover:file:bg-gray-600
+          focus:outline-none focus:border-blue-500"
           />
+          {prediction && (
+            <h3 className="mb-4 text-xl font-bold tracking-wide select-text break-words text-amber-200">
+              {prediction}
+            </h3>
+          )}
           {imageURL && (
-            <div style={{ marginBottom: "20px" }}>
+            <div className="mb-4">
               <img
                 ref={imageRef}
                 src={imageURL}
                 alt="Upload Preview"
-                width="250"
-                crossOrigin="anonymous"
+                className="mx-auto rounded-md border border-gray-700 shadow-sm"
+                width={250}
               />
             </div>
           )}
-          <button
-            onClick={handlePredict}
-            disabled={!imageURL || !model || loading}
-            className="
-    bg-blue-600 text-white font-bold py-2 px-4 rounded-lg
-    transition-colors duration-300
-    hover:bg-blue-700
-    focus:outline-none focus:ring-2 focus:ring-blue-500
-    disabled:bg-slate-400 disabled:cursor-not-allowed"
-          >
-            {loading ? "Loading..." : "Predict"}
-          </button>
-          {prediction && <h3 style={{ marginTop: "20px" }}>{prediction}</h3>}
+          {/* Spacer to push the button to the bottom */}
+          <div className="flex-1" />
+          <div className="sticky bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/40 pt-4 pb-2">
+            <button
+              onClick={handlePredict}
+              disabled={!imageURL || !model || loading}
+              className="
+            w-full bg-blue-600 text-white font-semibold text-lg py-4 rounded-lg
+            hover:bg-blue-700 transition-colors duration-300
+            disabled:opacity-50 disabled:cursor-not-allowed
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+            >
+              {loading ? "Loading..." : "Predict"}
+            </button>
+          </div>
         </>
       )}
     </div>
